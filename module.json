@@ -1,0 +1,13 @@
+{
+    "id": "email_whitelist",
+    "name": "Email Whitelist",
+    "description": "Limit registration to whitelisted domains",
+    "keywords": [
+        "authentication, users, registration"
+    ],
+    "version": "1.0",
+    "humhub": {
+        "minVersion": "0.8"
+    },
+    "screenshots": ["assets/screen1.jpg","assets/screen2.jpg"]
+}
