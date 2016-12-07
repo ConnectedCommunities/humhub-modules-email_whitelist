@@ -16,20 +16,22 @@
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
+
+use yii\helpers\Url;
 ?>
 <div class="panel panel-default">
     <div class="panel-heading"><strong>Add</strong> Whitelisted Email</div>
     <div class="panel-body">
         <ul class="nav nav-pills">
-            <li>
-                <a href="<?php echo $this->createUrl('index'); ?>">Overview</a>
+            <li><a
+                    href="<?php echo Url::toRoute('index'); ?>">Overview</a>
             </li>
             <li class="active">
-                <a href="<?php echo $this->createUrl('add'); ?>">Add Whitelisted Email</a>
+                <a href="<?php echo Url::toRoute('add'); ?>">Add Whitelisted Record</a>
             </li>
         </ul>
-        <p />
-        <?php echo $form; ?>
-
+        <?php $form = \yii\widgets\ActiveForm::begin(); ?>
+        <?php echo $hForm->render($form); ?>
+        <?php \yii\widgets\ActiveForm::end(); ?>
     </div>
 </div>

@@ -16,9 +16,7 @@
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-?>
-<?php
-$this->widget('application.modules.email_whitelist.widgets.InvalidEmailDomain', array(
-	'message' => 'The email you provided is not in the whitelist.'
-));
+
+use humhub\modules\email_whitelist\widgets\InvalidEmailDomain;
+echo InvalidEmailDomain::widget(['message' => 'The email you provided is not in the whitelist.']);
 ?>

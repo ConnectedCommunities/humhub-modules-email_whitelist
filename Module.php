@@ -1,5 +1,4 @@
 <?php
-
 /**
  * Connected Communities Initiative
  * Copyright (C) 2016 Queensland University of Technology
@@ -18,18 +17,8 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-class EmailWhiteListModule extends HWebModule{
-    
-    /**
-     * Inits the Module
-     */
-    public function init()
-    {
+namespace humhub\modules\email_whitelist;
 
-        $this->setImport(array(
-            'email_whitelist.models.*',
-        ));
-        
-    }
-    
+class Module extends \humhub\components\Module {
+
 }

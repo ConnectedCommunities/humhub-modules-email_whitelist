@@ -1,5 +1,4 @@
 <?php
-
 /**
  * Connected Communities Initiative
  * Copyright (C) 2016 Queensland University of Technology
@@ -18,35 +17,31 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-class AdminController extends Controller
+namespace humhub\modules\email_whitelist\controllers;
+
+use humhub\modules\email_whitelist\models\EmailWhitelistSearch;
+use Yii;
+use humhub\models\Setting;
+use yii\helpers\Url;
+use humhub\compat\HForm;
+use humhub\modules\anon_accounts\forms\AnonAccountsForm;
+use humhub\libs\ProfileImage;
+use humhub\modules\email_whitelist\models\EmailWhitelist;
+
+class AdminController extends \humhub\modules\admin\components\Controller
 {
-     public $subLayout = "application.modules_core.admin.views._layout";
-
+    
     /**
-     * @return array action filters
+     * @inheritdoc
      */
-    public function filters()
+    public function behaviors()
     {
-        return array(
-            'accessControl', // perform access control for CRUD operations
-        );
-    }
-
-    /**
-     * Specifies the access control rules.
-     * This method is used by the 'accessControl' filter.
-     * @return array access control rules
-     */
-    public function accessRules()
-    {
-        return array(
-            array('allow',
-                'expression' => 'Yii::app()->user->isAdmin()',
-            ),
-            array('deny', // deny all users
-                'users' => array('*'),
-            ),
-        );
+        return [
+            'acl' => [
+                'class' => \humhub\components\behaviors\AccessControl::className(),
+                'adminOnly' => true
+            ]
+        ];
     }
 
     /**
@@ -54,12 +49,14 @@ class AdminController extends Controller
      */
     public function actionIndex() {
 
+        $searchModel = new EmailWhitelistSearch();
+        $dataProvider = $searchModel->search(Yii::$app->request->queryParams);
 
-        $model = new EmailWhitelist('search');
-
-        $this->render('index', array(
-            'model' => $model
+        return $this->render('index', array(
+            'dataProvider' => $dataProvider,
+            'model' => EmailWhitelist::find()
         ));
+
 
     }
      
@@ -70,19 +67,20 @@ class AdminController extends Controller
      */
     public function actionAdd()
     {
-        
+
         // Build Form Definition
         $definition = array();
         $definition['elements'] = array();
 
-        // Define Form Eleements
+        // Define Form Elements
         $definition['elements']['EmailWhitelist'] = array(
             'type' => 'form',
+            'title' => 'EmailWhitelist',
             'elements' => array(
                 'domain' => array(
                     'type' => 'text',
                     'class' => 'form-control',
-                    'maxlength' => 25,
+                    'maxlength' => 400,
                 ),
             ),
         );
@@ -97,21 +95,15 @@ class AdminController extends Controller
         );
 
         $form = new HForm($definition);
-        $form['EmailWhitelist']->model = EmailWhitelist::model();
+        $form->models['EmailWhitelist'] = new EmailWhitelist();
 
-        // Save new karma
+        // Save new email for whitelist
         if($form->submitted('save') && $form->validate()) {
-            
-            $emailWhitelistModel = new EmailWhitelist;
-            $emailWhitelistModel->domain = $form['EmailWhitelist']->model->domain;
-            $emailWhitelistModel->save();
-
-            $this->redirect($this->createUrl('index'));
-
+            $form->models['EmailWhitelist']->save();
+            return $this->redirect(Url::to(['index']));
         }
 
-
-        $this->render('add', array('form' => $form));
+        return $this->render('add', array('hForm' => $form));
 
     }
 
@@ -122,25 +114,20 @@ class AdminController extends Controller
     public function actionEdit()
     {
 
-        $_POST = Yii::app()->input->stripClean($_POST);
-
-        $id = (int) Yii::app()->request->getQuery('id');
-        $user = User::model()->resetScope()->findByPk($id);
-        $emailWhiteList = EmailWhitelist::model()->resetScope()->findByPk($id);
+        $id = (int) Yii::$app->request->get('id');
+        $emailWhiteList = EmailWhitelist::findOne(['id' => $id]);
 
         if ($emailWhiteList == null)
-            throw new CHttpException(404, "EmailWhitelist record not found!");
+            throw new \yii\web\HttpException(404, "EmailWhitelist record not found!");
 
         // Build Form Definition
         $definition = array();
         $definition['elements'] = array();
 
-        $groupModels = Group::model()->findAll();
-
         // Define Form Eleements
         $definition['elements']['EmailWhitelist'] = array(
             'type' => 'form',
-            'title' => 'Edit whitelisted email',
+            'title' => 'Domain',
             'elements' => array(
                 'domain' => array(
                     'type' => 'text',
@@ -166,22 +153,20 @@ class AdminController extends Controller
         );
 
         $form = new HForm($definition);
-        $form['EmailWhitelist']->model = $emailWhiteList;
+        $form->models['EmailWhitelist'] = $emailWhiteList;
 
         if ($form->submitted('save') && $form->validate()) {
-            $this->forcePostRequest();
-
-            if($form['EmailWhitelist']->model->save()) {
-                $this->redirect($this->createUrl('edit', array('id' => $emailWhiteList->id)));
-                return;
+            if ($form->save()) {
+                return $this->redirect(Url::toRoute(['edit', 'id' => $emailWhiteList->id]));
             }
         }
 
+
         if ($form->submitted('delete')) {
-            $this->redirect(Yii::app()->createUrl('email_whitelist/admin/delete', array('id' => $user->id)));
+            return $this->redirect(Url::toRoute(['delete', 'id' => $karma->id]));
         }
 
-        $this->render('edit', array('form' => $form));
+        return $this->render('edit', array('hForm' => $form));
 
     }
 
@@ -192,24 +177,22 @@ class AdminController extends Controller
     public function actionDelete()
     {
 
-        $id = (int) Yii::app()->request->getQuery('id');
-        $doit = (int) Yii::app()->request->getQuery('doit');
+        $id = (int) Yii::$app->request->get('id');
+        $doit = (int) Yii::$app->request->get('doit');
 
-        $emailWhitelist = EmailWhitelist::model()->resetScope()->findByPk($id);
+        $emailWhitelist = EmailWhitelist::findOne(['id' => $id]);
 
-        if ($emailWhitelist == null) {
-            throw new CHttpException(404, "Karma record not found");
-        } 
+        if ($emailWhitelist == null)
+            throw new \yii\web\HttpException(404, "EmailWhitelist record not found!");
 
         if ($doit == 2) {
-
             $this->forcePostRequest();
-
             $emailWhitelist->delete();
-            $this->redirect($this->createUrl('index'));
+            return $this->redirect(Url::toRoute('index'));
 
         }
 
-        $this->render('delete', array('model' => $emailWhitelist));
+        return $this->render('delete', array('model' => $emailWhitelist));
+
     }
 }

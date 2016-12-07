@@ -1,5 +1,4 @@
 <?php
-
 /**
  * Connected Communities Initiative
  * Copyright (C) 2016 Queensland University of Technology
@@ -18,6 +17,13 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+namespace humhub\modules\email_whitelist\models;
+
+use Yii;
+use yii\base\Model;
+use yii\data\ActiveDataProvider;
+use humhub\components\ActiveRecord;
+
 /**
  * This is the model class for table "email_whitelist".
  *
@@ -25,12 +31,12 @@
  * @property integer $id
  * @property string $domain
  */
-class EmailWhitelist extends HActiveRecord
+class EmailWhitelist extends ActiveRecord
 {
 	/**
 	 * @return string the associated database table name
 	 */
-	public function tableName()
+	public static function tableName()
 	{
 		return 'email_whitelist';
 	}
@@ -43,11 +49,9 @@ class EmailWhitelist extends HActiveRecord
 		// NOTE: you should only define rules for those attributes that
 		// will receive user inputs.
 		return array(
-			array('domain', 'required'),
-			array('domain', 'length', 'max'=>400),
-			// The following rule is used by search().
-			// @todo Please remove those attributes that should not be searched.
-			array('id, domain', 'safe', 'on'=>'search'),
+			array(['domain'], 'required'),
+			array(['domain'], 'string', 'max' => 400),
+			array(['domain'], 'safe'),
 		);
 	}
 
@@ -73,56 +77,37 @@ class EmailWhitelist extends HActiveRecord
 		);
 	}
 
-	/**
-	 * Retrieves a list of models based on the current search/filter conditions.
-	 *
-	 * Typical usecase:
-	 * - Initialize the model fields with values from filter form.
-	 * - Execute this method to get CActiveDataProvider instance which will filter
-	 * models according to data in model fields.
-	 * - Pass data provider to CGridView, CListView or any similar widget.
-	 *
-	 * @return CActiveDataProvider the data provider that can return the models
-	 * based on the search/filter conditions.
-	 */
-	public function search()
-	{
-		// @todo Please modify the following code to remove attributes that should not be searched.
-
-		$criteria=new CDbCriteria;
-
-		$criteria->compare('id',$this->id);
-		$criteria->compare('domain',$this->domain,true);
-
-		return new CActiveDataProvider($this, array(
-			'criteria'=>$criteria,
-		));
-	}
-
-	/**
-	 * Returns the static model of the specified AR class.
-	 * Please note that you should have this exact method in all your CActiveRecord descendants!
-	 * @param string $className active record class name.
-	 * @return EmailWhitelist the static model class
-	 */
-	public static function model($className=__CLASS__)
-	{
-		return parent::model($className);
-	}
 
 	/**
 	 * Returns a list of whitelisted domains
 	 */
-	public static function toArray() 
+	public function toArray()
 	{
 
 		$whitelist = array();
-		
-		foreach(EmailWhitelist::model()->findAll() as $row) {
+
+		foreach(EmailWhitelist::find()->all() as $row) {
 			$whitelist[] = strtolower($row['domain']);
 		}
 
 		return $whitelist;
-		
 	}
+
+	/**
+	 * Checks to see if an email is
+	 * in the whitelist
+	 * @param string $email
+	 * @return bool
+	 */
+	public static function emailIsAllowed($email)
+	{
+		$allowed = self::toArray();
+		$domain = strtolower(array_pop(@explode('@', $email)));
+		if (in_array($domain, $allowed)) { // email not whitelisted
+			return true;
+		} else {
+			return false;
+		}
+	}
+
 }

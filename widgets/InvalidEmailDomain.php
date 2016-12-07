@@ -18,6 +18,13 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+namespace humhub\modules\email_whitelist\widgets;
+
+use Yii;
+use humhub\modules\user\models\User;
+use humhub\models\Setting;
+
+
 /**
  * InvalidEmailDomain. 
  * Displays a message informing the user that their email
@@ -27,7 +34,7 @@
  * @since 0.5
  * @author Ben
  */
-class InvalidEmailDomain extends HWidget
+class InvalidEmailDomain extends \yii\base\Widget
 {
 
     /**
@@ -43,7 +50,9 @@ class InvalidEmailDomain extends HWidget
      */
     public function run()
     {
-        $this->render('invalidEmailDomain', array('message' => $this->message));
+        return $this->render('invalidEmailDomain', array(
+            'message' => $this->message
+        ));
     }
     
 }

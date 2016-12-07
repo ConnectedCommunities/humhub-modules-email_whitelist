@@ -16,29 +16,32 @@
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
+
+use yii\helpers\Html;
+use yii\helpers\Url;
 ?>
 <div class="panel panel-default">
     <div class="panel-heading"><?php echo Yii::t('AdminModule.views_email_whitelist_delete', 'Delete whitelisted domain: <strong>{name}</strong>', array('{name}' => $model->domain)); ?></div>
     <div class="panel-body">
 
+
         <p>
-            <?php echo Yii::t('AdminModule.views_user_delete', 'Are you sure you want to delete this Karma record? Deleting Karma records can cause some unexpected side effects.'); ?>
+            Are you sure you want to delete this EmailWhitelist record? Deleting EmailWhitelist records can cause some unexpected side effects.
         </p>
 
         <?php
-        $this->widget('zii.widgets.CDetailView', array(
-            'data' => $model,
-            'attributes' => array(
+        echo \yii\widgets\DetailView::widget([
+            'model' => $model,
+            'attributes' => [
                 'domain',
-            ),
-        ));
+            ],
+        ]);
         ?>
 
         <br/>
-        <?php echo HHtml::postLink('Delete record', $this->createUrl('//email_whitelist/admin/delete', array('id' => $model->id, 'doit' => 2)), array('class' => 'btn btn-danger')); ?>
+        <?php echo Html::a('Delete', Url::toRoute(['/email_whitelist/admin/delete', 'id' => $model->id, 'doit' => 2]), array('class' => 'btn btn-danger', 'data-method' => 'POST')); ?>
         &nbsp;
-        <?php echo CHtml::link('Back', $this->createUrl('//email_whitelist/admin/edit', array('id' => $model->id)), array('class' => 'btn btn-primary')); ?>
-
+        <?php echo Html::a('Back', Url::toRoute(['/email_whitelist/admin/edit', 'id' => $model->id]), array('class' => 'btn btn-primary')); ?>
 
     </div>
 </div>

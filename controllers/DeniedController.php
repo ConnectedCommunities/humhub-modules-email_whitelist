@@ -1,5 +1,4 @@
 <?php
-
 /**
  * Connected Communities Initiative
  * Copyright (C) 2016 Queensland University of Technology
@@ -18,19 +17,22 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+namespace humhub\modules\email_whitelist\controllers;
+
+use Yii;
+use humhub\components\Controller;
+
 class DeniedController extends Controller
 {
-     public $layout = "application.modules_core.user.views.layouts.main_auth";
-     // public $subLayout = "_layout";
+
+    public $layout = "@humhub/modules/user/views/layouts/main";
+    public $subLayout = "_layout";
 
     /**
-     * Configuration Action for Super Admins
+     * Show email not on whitelist page
      */
     public function actionIndex() {
-        
-        $this->render('index', array(
-        ));
-
+        return $this->render('index', array());
     }
      
 

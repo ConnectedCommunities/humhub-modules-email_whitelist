@@ -1,5 +1,4 @@
 <?php
-
 /**
  * Connected Communities Initiative
  * Copyright (C) 2016 Queensland University of Technology
@@ -18,7 +17,9 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-class m150827_105357_create_email_whitelist_table extends EDbMigration
+use humhub\components\Migration;
+
+class m150827_105357_create_email_whitelist_table extends Migration
 {
 	public function up()
 	{
